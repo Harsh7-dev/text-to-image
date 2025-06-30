@@ -26,11 +26,11 @@ RUN mkdir -p /app/output && chown -R appuser:appuser /app
 USER appuser
 
 # Expose port (Railway will set PORT environment variable)
-EXPOSE 3123
+EXPOSE $PORT
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:3123/health')" || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:$PORT/health')" || exit 1
 
-# Start the application
+# Start the application (Railway will override this with the startCommand from railway.json)
 CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3123"] 

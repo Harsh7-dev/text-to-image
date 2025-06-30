@@ -131,11 +131,11 @@ docker-compose down
 
 ### Using Docker Directly
 
-```bash
+   ```bash
 # Build the image
 docker build -f main.Dockerfile -t text-to-image .
-
-# Run the container
+   
+   # Run the container
 docker run -p 3123:3123 --env-file .env text-to-image
 ```
 
@@ -227,7 +227,7 @@ docker run -d \
   --env-file .env \
   --restart unless-stopped \
   text-to-image
-```
+   ```
 
 ### Environment Variables
 
@@ -419,12 +419,12 @@ text-to-image/
 
 ### Development Commands
 
-```bash
+   ```bash
 # Install dependencies
 pip install -r requirements.txt
 
 # Run in development mode
-uvicorn app.main:app --reload
+   uvicorn app.main:app --reload
 
 # Run with Docker Compose
 docker-compose up --build

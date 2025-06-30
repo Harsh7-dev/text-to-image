@@ -11,6 +11,7 @@ import requests
 import json
 import time
 from typing import Dict, Any, Optional, List
+import os
 
 class MCPClient:
     """Client for interacting with the Text-to-Image MCP server."""
@@ -204,4 +205,6 @@ if __name__ == "__main__":
     mcp_workflow_example()
     
     # Run the batch generation example
-    batch_generate_example() 
+    batch_generate_example()
+
+print(os.getenv("LANGTRACE_API_KEY")) 

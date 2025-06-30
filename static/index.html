@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text-to-Image Generator</title>
+    <title>Text-to-Image & Video Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -31,6 +31,28 @@
             color: #6366f1;
             font-size: 1.08rem;
             margin-top: 0;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 18px;
+            gap: 8px;
+        }
+        .tab-btn {
+            background: #e0e7ff;
+            color: #3730a3;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            padding: 10px 24px;
+            font-size: 1.08rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            outline: none;
+        }
+        .tab-btn.active {
+            background: linear-gradient(90deg, #6366f1 0%, #3730a3 100%);
+            color: #fff;
         }
         .container {
             background: #fff;
@@ -183,19 +205,27 @@
             transform: scale(1.03);
             box-shadow: 0 0 16px #6366f1;
         }
-        .gallery-item img {
+        .gallery-item img, .gallery-item video {
             max-width: 180px;
             max-height: 180px;
             border-radius: 8px;
             margin-bottom: 8px;
             background: #fff;
             box-shadow: 0 0 4px #c7d2fe;
+            display: block;
         }
         .gallery-item .prompt {
             font-size: 0.97rem;
             color: #6366f1;
             text-align: center;
             margin-bottom: 4px;
+        }
+        .gallery-item .type-label {
+            font-size: 0.85rem;
+            color: #a5b4fc;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .gallery-item a {
             color: #3730a3;
@@ -228,7 +258,7 @@
                 min-width: 220px;
                 max-width: 90vw;
             }
-            .gallery-item img {
+            .gallery-item img, .gallery-item video {
                 max-width: 75vw;
             }
         }
@@ -236,7 +266,7 @@
             .gallery-item {
                 min-width: 140px;
             }
-            .gallery-item img {
+            .gallery-item img, .gallery-item video {
                 max-width: 120px;
             }
         }
@@ -244,21 +274,33 @@
 </head>
 <body>
     <header>
-        <h1>Text-to-Image Generator</h1>
-        <p>Generate stunning images from your imagination using AI ✨</p>
+        <h1>Text-to-Image & Video Generator</h1>
+        <p>Generate stunning images and videos from your imagination using AI ✨</p>
     </header>
+    <div class="tabs">
+        <button class="tab-btn active" id="tabImage">Image</button>
+        <button class="tab-btn" id="tabVideo">Video</button>
+    </div>
     <div class="container">
-        <form id="promptForm" autocomplete="off">
-            <label for="prompt">Enter your prompt:</label>
-            <span class="helper">Describe what you want to see. Be creative! (e.g. "A cat astronaut on Mars")</span>
+        <form id="promptFormImage" autocomplete="off">
+            <label for="promptImage">Enter your prompt for an image:</label>
+            <span class="helper">Describe what you want to see. (e.g. "A cat astronaut on Mars")</span>
             <div class="input-row">
-                <input type="text" id="prompt" name="prompt" placeholder="e.g. A beautiful sunset over the ocean" required />
+                <input type="text" id="promptImage" name="promptImage" placeholder="e.g. A beautiful sunset over the ocean" required />
+                <button type="submit">Generate</button>
+            </div>
+        </form>
+        <form id="promptFormVideo" autocomplete="off" style="display:none;">
+            <label for="promptVideo">Enter your prompt for a video:</label>
+            <span class="helper">Describe the video you want. (e.g. "A dog surfing a wave, 480p")</span>
+            <div class="input-row">
+                <input type="text" id="promptVideo" name="promptVideo" placeholder="e.g. A dog surfing a wave, 480p" required />
                 <button type="submit">Generate</button>
             </div>
         </form>
         <div id="loading" class="loading" style="display:none;">
             <div class="spinner"></div>
-            <span>Generating image...</span>
+            <span id="loadingText">Generating...</span>
         </div>
         <div id="error" class="error" style="display:none;"></div>
         <button class="clear-btn" id="clearGalleryBtn" type="button">Clear Gallery</button>
@@ -268,38 +310,64 @@
         <div class="gallery" id="gallery"></div>
     </section>
     <script>
-        const form = document.getElementById('promptForm');
-        const promptInput = document.getElementById('prompt');
+        // Tab logic
+        const tabImage = document.getElementById('tabImage');
+        const tabVideo = document.getElementById('tabVideo');
+        const formImage = document.getElementById('promptFormImage');
+        const formVideo = document.getElementById('promptFormVideo');
+        const promptInputImage = document.getElementById('promptImage');
+        const promptInputVideo = document.getElementById('promptVideo');
         const loading = document.getElementById('loading');
+        const loadingText = document.getElementById('loadingText');
         const errorDiv = document.getElementById('error');
         const gallery = document.getElementById('gallery');
         const clearGalleryBtn = document.getElementById('clearGalleryBtn');
 
-        // Store generated images in localStorage for gallery
-        function saveToGallery(imageUrl, prompt) {
-            let images = JSON.parse(localStorage.getItem('galleryImages') || '[]');
-            images.unshift({ imageUrl, prompt });
-            images = images.slice(0, 12); // Keep only last 12
-            localStorage.setItem('galleryImages', JSON.stringify(images));
+        let currentTab = 'image';
+
+        tabImage.addEventListener('click', () => {
+            currentTab = 'image';
+            tabImage.classList.add('active');
+            tabVideo.classList.remove('active');
+            formImage.style.display = '';
+            formVideo.style.display = 'none';
+            errorDiv.style.display = 'none';
+        });
+        tabVideo.addEventListener('click', () => {
+            currentTab = 'video';
+            tabVideo.classList.add('active');
+            tabImage.classList.remove('active');
+            formVideo.style.display = '';
+            formImage.style.display = 'none';
+            errorDiv.style.display = 'none';
+        });
+
+        // Store generated items in localStorage for gallery
+        function saveToGallery(item) {
+            let items = JSON.parse(localStorage.getItem('galleryItems') || '[]');
+            items.unshift(item);
+            items = items.slice(0, 12); // Keep only last 12
+            localStorage.setItem('galleryItems', JSON.stringify(items));
             renderGallery();
         }
 
         function renderGallery() {
-            const images = JSON.parse(localStorage.getItem('galleryImages') || '[]');
+            const items = JSON.parse(localStorage.getItem('galleryItems') || '[]');
             gallery.innerHTML = '';
-            if (images.length === 0) {
-                gallery.innerHTML = '<div style="color:#a5b4fc;text-align:center;width:100%;padding:18px 0;">No images yet. Your creations will appear here!</div>';
+            if (items.length === 0) {
+                gallery.innerHTML = '<div style="color:#a5b4fc;text-align:center;width:100%;padding:18px 0;">No images or videos yet. Your creations will appear here!</div>';
                 clearGalleryBtn.style.display = 'none';
                 return;
             }
             clearGalleryBtn.style.display = 'inline-block';
-            images.forEach(({ imageUrl, prompt }) => {
+            items.forEach(({ type, url, prompt }) => {
                 const item = document.createElement('div');
                 item.className = 'gallery-item';
                 item.innerHTML = `
-                    <img src="${imageUrl}" alt="Generated image" loading="lazy" />
+                    <div class="type-label">${type === 'image' ? 'Image' : 'Video'}</div>
+                    ${type === 'image' ? `<img src="${url}" alt="Generated image" loading="lazy" />` : `<video src="${url}" controls preload="none" poster="" style="background:#000;"></video>`}
                     <div class="prompt">${prompt}</div>
-                    <a href="${imageUrl}" target="_blank">Open</a>
+                    <a href="${url}" target="_blank">Open</a>
                 `;
                 gallery.appendChild(item);
             });
@@ -307,11 +375,12 @@
 
         renderGallery();
 
-        form.addEventListener('submit', async (e) => {
+        formImage.addEventListener('submit', async (e) => {
             e.preventDefault();
             errorDiv.style.display = 'none';
             loading.style.display = 'flex';
-            const prompt = promptInput.value.trim();
+            loadingText.textContent = 'Generating image...';
+            const prompt = promptInputImage.value.trim();
             try {
                 const res = await fetch('/api/generate-image', {
                     method: 'POST',
@@ -325,8 +394,36 @@
                     errorDiv.style.display = 'block';
                     return;
                 }
-                saveToGallery(data.imageUrl, prompt);
-                promptInput.value = '';
+                saveToGallery({ type: 'image', url: data.imageUrl, prompt });
+                promptInputImage.value = '';
+            } catch (err) {
+                loading.style.display = 'none';
+                errorDiv.textContent = 'An error occurred. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        });
+
+        formVideo.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorDiv.style.display = 'none';
+            loading.style.display = 'flex';
+            loadingText.textContent = 'Generating video...';
+            const prompt = promptInputVideo.value.trim();
+            try {
+                const res = await fetch('/api/generate-video', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+                const data = await res.json();
+                loading.style.display = 'none';
+                if (!res.ok || !data.videoUrl) {
+                    errorDiv.textContent = data.message || 'Failed to generate video.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                saveToGallery({ type: 'video', url: data.videoUrl, prompt });
+                promptInputVideo.value = '';
             } catch (err) {
                 loading.style.display = 'none';
                 errorDiv.textContent = 'An error occurred. Please try again.';
@@ -335,8 +432,8 @@
         });
 
         clearGalleryBtn.addEventListener('click', () => {
-            if (confirm('Clear all images from your gallery?')) {
-                localStorage.removeItem('galleryImages');
+            if (confirm('Clear all images and videos from your gallery?')) {
+                localStorage.removeItem('galleryItems');
                 renderGallery();
             }
         });
