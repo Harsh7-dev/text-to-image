@@ -23,6 +23,7 @@ class Prompt(BaseModel):
     text: str
 
 @app.get("/")
+@app.head("/")
 async def read_root():
     """Serve the main frontend page"""
     return FileResponse("static/index.html")
