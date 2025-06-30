@@ -4,94 +4,342 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text-to-Image Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
+            margin: 0;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
         }
-
+        header {
+            margin-top: 40px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.3rem;
+            font-weight: 700;
+            color: #3730a3;
+            margin-bottom: 0.5rem;
+        }
+        p {
+            color: #6366f1;
+            font-size: 1.08rem;
+            margin-top: 0;
+        }
         .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        h1 { color: #333; text-align: center; }
-        textarea {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(55, 48, 163, 0.08);
+            padding: 32px 24px 24px 24px;
+            max-width: 420px;
             width: 100%;
-            height: 100px;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            margin: 10px 0;
+            margin-bottom: 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            animation: fadeIn 0.8s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        label {
+            font-weight: 600;
+            color: #3730a3;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .helper {
+            color: #a5b4fc;
+            font-size: 0.98rem;
+            margin-bottom: 10px;
+            margin-top: -4px;
+            display: block;
+        }
+        .input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 13px;
+            border: 1.5px solid #c7d2fe;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 16px;
+            outline: none;
+            transition: border 0.2s, box-shadow 0.2s;
+            background: #f8fafc;
+        }
+        input[type="text"]:focus {
+            border: 1.5px solid #6366f1;
+            box-shadow: 0 0 0 2px #6366f133;
         }
         button {
-            background: #667eea;
-            color: white;
-            padding: 10px 20px;
+            background: linear-gradient(90deg, #6366f1 0%, #3730a3 100%);
+            color: #fff;
+            font-weight: 700;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            padding: 12px 18px;
+            font-size: 1.08rem;
             cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            margin-bottom: 8px;
+            outline: none;
+            min-width: 110px;
         }
-        button:disabled { opacity: 0.6; }
-        .result img { max-width: 100%; margin: 20px 0; }
-        .error { color: red; }
-        .loading { text-align: center; }
+        button:active {
+            transform: scale(0.98);
+        }
+        button:focus {
+            box-shadow: 0 0 0 2px #6366f133;
+        }
+        .clear-btn {
+            background: #e0e7ff;
+            color: #3730a3;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 10px;
+            padding: 8px 14px;
+            font-size: 0.98rem;
+            border-radius: 7px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .clear-btn:hover {
+            background: #c7d2fe;
+        }
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 12px 0;
+        }
+        .spinner {
+            border: 4px solid #e0e7ff;
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            color: #dc2626;
+            background: #fee2e2;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 10px;
+            font-size: 0.98rem;
+            text-align: center;
+            animation: fadeIn 0.5s;
+        }
+        section {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding-bottom: 32px;
+        }
+        h2 {
+            text-align: center;
+            color: #6366f1;
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            margin-top: 0;
+        }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            justify-content: center;
+            margin-top: 16px;
+        }
+        .gallery-item {
+            background: #f1f5f9;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.07);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 200px;
+            animation: fadeIn 0.7s;
+            transition: transform 0.18s, box-shadow 0.18s;
+        }
+        .gallery-item:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 16px #6366f1;
+        }
+        .gallery-item img {
+            max-width: 180px;
+            max-height: 180px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: #fff;
+            box-shadow: 0 0 4px #c7d2fe;
+        }
+        .gallery-item .prompt {
+            font-size: 0.97rem;
+            color: #6366f1;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        .gallery-item a {
+            color: #3730a3;
+            font-size: 0.93rem;
+            text-decoration: none;
+            margin-top: 2px;
+            transition: color 0.2s;
+        }
+        .gallery-item a:hover {
+            color: #6366f1;
+            text-decoration: underline;
+        }
+        @media (max-width: 700px) {
+            .container {
+                padding: 18px 6px 16px 6px;
+                max-width: 98vw;
+            }
+            section {
+                max-width: 100vw;
+                padding: 0 2vw 32px 2vw;
+            }
+            .gallery {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                gap: 12px;
+                padding-bottom: 8px;
+            }
+            .gallery-item {
+                width: 80vw;
+                min-width: 220px;
+                max-width: 90vw;
+            }
+            .gallery-item img {
+                max-width: 75vw;
+            }
+        }
+        @media (max-width: 400px) {
+            .gallery-item {
+                min-width: 140px;
+            }
+            .gallery-item img {
+                max-width: 120px;
+            }
+        }
     </style>
 </head>
 <body>
+    <header>
+        <h1>Text-to-Image Generator</h1>
+        <p>Generate stunning images from your imagination using AI ✨</p>
+    </header>
     <div class="container">
-        <h1>🎨 Text-to-Image Generator</h1>
-        <textarea id="prompt" placeholder="Describe the image you want to generate..."></textarea>
-        <button onclick="generateImage()">Generate Image</button>
-        <div id="loading" class="loading" style="display:none;">Generating...</div>
-        <div id="error" class="error"></div>
-        <div id="result"></div>
+        <form id="promptForm" autocomplete="off">
+            <label for="prompt">Enter your prompt:</label>
+            <span class="helper">Describe what you want to see. Be creative! (e.g. "A cat astronaut on Mars")</span>
+            <div class="input-row">
+                <input type="text" id="prompt" name="prompt" placeholder="e.g. A beautiful sunset over the ocean" required />
+                <button type="submit">Generate</button>
+            </div>
+        </form>
+        <div id="loading" class="loading" style="display:none;">
+            <div class="spinner"></div>
+            <span>Generating image...</span>
+        </div>
+        <div id="error" class="error" style="display:none;"></div>
+        <button class="clear-btn" id="clearGalleryBtn" type="button">Clear Gallery</button>
     </div>
-
+    <section>
+        <h2>Gallery</h2>
+        <div class="gallery" id="gallery"></div>
+    </section>
     <script>
-        async function generateImage() {
-            const prompt = document.getElementById('prompt').value;
-            if (!prompt) return;
+        const form = document.getElementById('promptForm');
+        const promptInput = document.getElementById('prompt');
+        const loading = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const gallery = document.getElementById('gallery');
+        const clearGalleryBtn = document.getElementById('clearGalleryBtn');
 
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('error').textContent = '';
-            document.getElementById('result').innerHTML = '';
+        // Store generated images in localStorage for gallery
+        function saveToGallery(imageUrl, prompt) {
+            let images = JSON.parse(localStorage.getItem('galleryImages') || '[]');
+            images.unshift({ imageUrl, prompt });
+            images = images.slice(0, 12); // Keep only last 12
+            localStorage.setItem('galleryImages', JSON.stringify(images));
+            renderGallery();
+        }
 
+        function renderGallery() {
+            const images = JSON.parse(localStorage.getItem('galleryImages') || '[]');
+            gallery.innerHTML = '';
+            if (images.length === 0) {
+                gallery.innerHTML = '<div style="color:#a5b4fc;text-align:center;width:100%;padding:18px 0;">No images yet. Your creations will appear here!</div>';
+                clearGalleryBtn.style.display = 'none';
+                return;
+            }
+            clearGalleryBtn.style.display = 'inline-block';
+            images.forEach(({ imageUrl, prompt }) => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.innerHTML = `
+                    <img src="${imageUrl}" alt="Generated image" loading="lazy" />
+                    <div class="prompt">${prompt}</div>
+                    <a href="${imageUrl}" target="_blank">Open</a>
+                `;
+                gallery.appendChild(item);
+            });
+        }
+
+        renderGallery();
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorDiv.style.display = 'none';
+            loading.style.display = 'flex';
+            const prompt = promptInput.value.trim();
             try {
-                const response = await fetch('/api/generate-image', {
+                const res = await fetch('/api/generate-image', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt })
                 });
-
-                const data = await response.json();
-                
-                if (response.ok) {
-                    document.getElementById('result').innerHTML = `
-                        <img src="${data.imageUrl}" alt="Generated image">
-                        <p><a href="${data.imageUrl}" download>Download Image</a></p>
-                    `;
-                } else {
-                    document.getElementById('error').textContent = data.error;
+                const data = await res.json();
+                loading.style.display = 'none';
+                if (!res.ok || !data.imageUrl) {
+                    errorDiv.textContent = data.message || 'Failed to generate image.';
+                    errorDiv.style.display = 'block';
+                    return;
                 }
-            } catch (error) {
-                document.getElementById('error').textContent = 'Failed to generate image';
-            } finally {
-                document.getElementById('loading').style.display = 'none';
+                saveToGallery(data.imageUrl, prompt);
+                promptInput.value = '';
+            } catch (err) {
+                loading.style.display = 'none';
+                errorDiv.textContent = 'An error occurred. Please try again.';
+                errorDiv.style.display = 'block';
             }
-        }
+        });
+
+        clearGalleryBtn.addEventListener('click', () => {
+            if (confirm('Clear all images from your gallery?')) {
+                localStorage.removeItem('galleryImages');
+                renderGallery();
+            }
+        });
     </script>
 </body>
 </html> 
