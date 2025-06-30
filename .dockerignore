@@ -29,7 +29,6 @@ nosetests.xml
 coverage.xml
 *.cover
 *.log
-.git
 .mypy_cache
 .pytest_cache
 .hypothesis
@@ -78,4 +77,5 @@ server.log
 test_*.py
 examples/
 DEPLOYMENT.md
-ecosystem.config.js 
+ecosystem.config.js
+RAILWAY_DEPLOYMENT.md 

@@ -15,9 +15,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY ./app /app
-COPY ./static /app/static
+# Copy the entire application
+COPY . .
 
 # Create output directory and set permissions
 RUN mkdir -p /app/output && chown -R appuser:appuser /app
