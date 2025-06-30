@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # Main production service
+  text-to-image:
+    build:
+      context: .
+      dockerfile: main.Dockerfile
+    ports:
+      - "3123:3123"
+    environment:
+      - REPLICATE_API_TOKEN=${REPLICATE_API_TOKEN}
+      - PORT=3123
+    volumes:
+      - ./output:/app/output
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3123/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Tiny Alpine service for resource-constrained environments
+  text-to-image-tiny:
+    build:
+      context: .
+      dockerfile: main-tiny.Dockerfile
+    ports:
+      - "3124:3123"
+    environment:
+      - REPLICATE_API_TOKEN=${REPLICATE_API_TOKEN}
+      - PORT=3123
+    volumes:
+      - ./output:/app/output
+    restart: unless-stopped
+    profiles:
+      - tiny
+
+  # CUDA-enabled service for GPU acceleration
+  text-to-image-cuda:
+    build:
+      context: .
+      dockerfile: main-cuda.Dockerfile
+    ports:
+      - "3125:3123"
+    environment:
+      - REPLICATE_API_TOKEN=${REPLICATE_API_TOKEN}
+      - PORT=3123
+    volumes:
+      - ./output:/app/output
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    profiles:
+      - cuda
+
+  # Development service with hot reload
+  text-to-image-dev:
+    build:
+      context: .
+      dockerfile: main.Dockerfile
+    ports:
+      - "3126:3123"
+    environment:
+      - REPLICATE_API_TOKEN=${REPLICATE_API_TOKEN}
+      - PORT=3123
+    volumes:
+      - ./app:/app/app
+      - ./static:/app/static
+      - ./output:/app/output
+    restart: unless-stopped
+    command: ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3123", "--reload"]
+    profiles:
+      - dev 
