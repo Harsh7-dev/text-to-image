@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Video Generator</title>
+    <title>AI Image Generator</title>
     <style>
         * {
             margin: 0;
@@ -115,7 +115,7 @@
             margin-top: 30px;
         }
 
-        .generated-video {
+        .generated-image {
             max-width: 100%;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -201,14 +201,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎬 AI Video Generator</h1>
-        <p class="subtitle">Transform your ideas into stunning videos with AI</p>
+        <h1>🎨 AI Image Generator</h1>
+        <p class="subtitle">Transform your ideas into stunning images with AI</p>
         
         <div class="input-group">
-            <textarea id="prompt" placeholder="Describe the video you want to generate... (e.g., 'a beautiful sunset over mountains with golden clouds')"></textarea>
+            <textarea id="prompt" placeholder="Describe the image you want to generate... (e.g., 'a beautiful sunset over mountains with golden clouds')"></textarea>
         </div>
         
-        <button class="generate-btn" onclick="generateVideo()">Generate Video</button>
+        <button class="generate-btn" onclick="generateImage()">Generate Image</button>
         
         <div class="loading" id="loading">
             <div class="spinner"></div>
@@ -218,11 +218,8 @@
         <div class="error" id="error"></div>
         
         <div class="result" id="result">
-            <div class="generated-video">
-                <p>🎬 Video generated successfully!</p>
-                <p>This is a placeholder implementation. In a real app, you would see the generated video here.</p>
-            </div>
-            <a id="downloadBtn" class="download-btn" download="generated-video.mp4">Download Video</a>
+            <img id="generatedImage" class="generated-image" alt="Generated Image">
+            <a id="downloadBtn" class="download-btn" download="generated-image.png">Download Image</a>
         </div>
         
         <div class="examples">
@@ -243,11 +240,11 @@
             document.getElementById('prompt').value = text;
         }
 
-        async function generateVideo() {
+        async function generateImage() {
             const prompt = document.getElementById('prompt').value.trim();
             
             if (!prompt) {
-                showError('Please enter a description for the video you want to generate.');
+                showError('Please enter a description for the image you want to generate.');
                 return;
             }
             
@@ -275,20 +272,26 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    throw new Error(data.detail || 'Failed to generate video');
+                    throw new Error(data.detail || 'Failed to generate image');
                 }
                 
-                // Display the result
+                // Display the generated image
+                const generatedImage = document.getElementById('generatedImage');
+                const downloadBtn = document.getElementById('downloadBtn');
+                
+                generatedImage.src = data.image_url;
+                downloadBtn.href = data.image_url;
+                
                 result.style.display = 'block';
                 
                 // Scroll to result
                 result.scrollIntoView({ behavior: 'smooth' });
                 
             } catch (err) {
-                showError(err.message || 'An error occurred while generating the video. Please try again.');
+                showError(err.message || 'An error occurred while generating the image. Please try again.');
             } finally {
                 generateBtn.disabled = false;
-                generateBtn.textContent = 'Generate Video';
+                generateBtn.textContent = 'Generate Image';
                 loading.style.display = 'none';
             }
         }
@@ -303,10 +306,10 @@
             document.getElementById('error').style.display = 'none';
         }
         
-        // Allow Enter key to generate video
+        // Allow Enter key to generate image
         document.getElementById('prompt').addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && e.ctrlKey) {
-                generateVideo();
+                generateImage();
             }
         });
     </script>

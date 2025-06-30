@@ -1,12 +1,12 @@
 # Railway Deployment Guide
 
-This guide will help you deploy your Text-to-Video API on Railway.
+This guide will help you deploy your Text-to-Image API on Railway.
 
 ## Prerequisites
 
 1. A GitHub account with your repository pushed
 2. A Railway account (free tier available)
-3. A Hugging Face account with API token (optional, for better performance)
+3. A Replicate account with API token
 
 ## Step 1: Create Railway Account
 
@@ -27,10 +27,10 @@ This guide will help you deploy your Text-to-Video API on Railway.
    - Add the following environment variables:
    
    ```
-   HUGGINGFACE_API_TOKEN=your_huggingface_token_here
+   REPLICATE_API_TOKEN=your_replicate_token_here
    ```
    
-   - If you don't have a Hugging Face token, the app will work with limited requests
+   - Get your Replicate token from: https://replicate.com/account/api-tokens
    - Click "Add" to save each variable
 
 3. **Deploy:**
@@ -60,7 +60,7 @@ This guide will help you deploy your Text-to-Video API on Railway.
 
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
-| `HUGGINGFACE_API_TOKEN` | Hugging Face API token for higher rate limits | No | None |
+| `REPLICATE_API_TOKEN` | Your Replicate API token for image generation | Yes | None |
 | `PORT` | Port for the application | No | 8000 |
 
 ## Troubleshooting
@@ -73,7 +73,7 @@ This guide will help you deploy your Text-to-Video API on Railway.
 ### Runtime Errors
 - Check application logs in Railway dashboard
 - Verify environment variables are set correctly
-- Ensure the model URL is accessible
+- Ensure your Replicate token is valid and has sufficient credits
 
 ### Health Check Failures
 - The `/health` endpoint should return 200 OK
@@ -91,6 +91,7 @@ This guide will help you deploy your Text-to-Video API on Railway.
 - Railway offers a free tier with usage limits
 - Monitor your usage in the dashboard
 - Consider upgrading for production workloads
+- Replicate charges per API call - monitor usage there too
 
 ## Security
 
