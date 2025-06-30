@@ -32,6 +32,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
 
-# Use Railway's PORT environment variable or default to 8000
-CMD uvicorn main:app --host 0.0.0.0 --port 8000
+# Use shell command to properly expand environment variables
+CMD sh -c 'uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}'
 
