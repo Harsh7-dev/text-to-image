@@ -1,34 +1,33 @@
-# Text-to-Video API
+# Text-to-Image API
 
-A FastAPI service that generates videos from text prompts using Hugging Face's text-to-video models.
+A FastAPI service that generates images from text prompts using Replicate's Stable Diffusion XL model.
 
 ## Prerequisites
 
 - Docker installed
-- Hugging Face API token (optional, for higher rate limits)
+- Replicate API token (required for image generation)
 
 ## Setup
 
-1. **Get your Hugging Face API token (optional):**
-   - Go to: https://huggingface.co/settings/tokens
+1. **Get your Replicate API token:**
+   - Go to: https://replicate.com/account/api-tokens
    - Create a new API token
    - Copy the token
 
 2. **Configure your API token:**
    - Edit the `.env` file in the project root
-   - Add your Hugging Face API token:
+   - Add your Replicate API token:
    ```
-   HUGGINGFACE_API_TOKEN=your_token_here
+   REPLICATE_API_TOKEN=your_token_here
    ```
-   - Note: The app works without a token but with limited requests
 
 3. **Build and run with Docker:**
    ```bash
    # Build the Docker image
-   docker build -t text-to-video .
+   docker build -t text-to-image .
    
    # Run the container
-   docker run -p 8000:8000 text-to-video
+   docker run -p 8000:8000 --env-file .env text-to-image
    ```
 
 ## Usage
@@ -37,12 +36,13 @@ The API will be available at `http://localhost:8000`
 
 ### Web Interface
 
-Visit `http://localhost:8000` to use the beautiful web interface for generating videos.
+Visit `http://localhost:8000` to use the beautiful web interface for generating images.
 
 ### API Endpoints
 
 - **Health Check:** `GET /health`
-- **Generate Video:** `POST /generate`
+- **Generate Image:** `POST /generate`
+- **API Info:** `GET /info`
 
 ### Example Request
 
@@ -56,8 +56,9 @@ curl -X POST "http://localhost:8000/generate" \
 
 ```json
 {
-  "video_path": "output/generated_video.mp4",
-  "message": "Video generated successfully"
+  "image_path": "output/generated_image.png",
+  "image_url": "https://replicate.delivery/pbxt/...",
+  "message": "Image generated successfully"
 }
 ```
 
@@ -67,16 +68,16 @@ Visit `http://localhost:8000/docs` for interactive API documentation.
 
 ## Output
 
-Generated videos are saved in the `./output` directory inside the container.
+Generated images are saved in the `./output` directory inside the container.
 
 ## Environment Variables
 
 The application reads environment variables from the `.env` file:
-- `HUGGINGFACE_API_TOKEN`: Your Hugging Face API token (optional)
+- `REPLICATE_API_TOKEN`: Your Replicate API token (required)
 
 ## Model Used
 
-This API uses **Text-to-Video models** from Hugging Face, which generate short video clips from text descriptions.
+This API uses **Stable Diffusion XL** from Replicate, which generates high-quality images from text descriptions.
 
 ## Security Notes
 
@@ -94,7 +95,7 @@ This application is configured for easy deployment on Railway. See [DEPLOYMENT.m
 Quick deployment steps:
 1. Push your code to GitHub
 2. Connect your repository to Railway
-3. Set the `HUGGINGFACE_API_TOKEN` environment variable in Railway (optional)
+3. Set the `REPLICATE_API_TOKEN` environment variable in Railway
 4. Deploy!
 
 ### Other Platforms
@@ -107,20 +108,20 @@ The Dockerfile is compatible with other platforms like:
 
 ## Troubleshooting
 
-- **Port already in use**: The service runs on port 8000 by default. If you need a different port, modify the Docker run command: `docker run -p 8001:8000 text-to-video`
-- **API token errors**: Make sure your Hugging Face API token is valid and properly set in the `.env` file
-- **Model access**: The app uses free models from Hugging Face, so no special access is required
-- **Rate limits**: Without an API token, you're limited to a few requests per hour
+- **Port already in use**: The service runs on port 8000 by default. If you need a different port, modify the Docker run command: `docker run -p 8001:8000 --env-file .env text-to-image`
+- **API token errors**: Make sure your Replicate API token is valid and properly set in the `.env` file
+- **Billing issues**: Replicate requires a payment method for image generation. Check your billing status at https://replicate.com/account/billing
+- **Rate limits**: Replicate has rate limits based on your plan
 
 ## Project Structure
 
 ```
-Text-to-Video/
+Text-to-Image/
 ├── app/
 │   ├── main.py          # FastAPI application
 │   └── static/
 │       └── index.html   # Web interface
-├── output/              # Generated videos (created by container)
+├── output/              # Generated images (created by container)
 ├── .env                 # Environment variables (create this file)
 ├── Dockerfile           # Docker configuration
 ├── railway.json         # Railway deployment config
@@ -138,7 +139,7 @@ To run the application locally without Docker:
    pip install -r requirements.txt
    ```
 
-2. Set up your `.env` file with your Hugging Face API token (optional)
+2. Set up your `.env` file with your Replicate API token
 
 3. Run the application:
    ```bash
@@ -147,11 +148,12 @@ To run the application locally without Docker:
 
 ## Features
 
-- 🎬 Beautiful, responsive web interface
-- 🚀 Fast video generation with Hugging Face models
+- 🎨 Beautiful, responsive web interface
+- 🚀 Fast image generation with Stable Diffusion XL
 - 📱 Mobile-friendly design
 - 🔒 Secure token handling
 - 🐳 Docker containerization
 - ☁️ Railway deployment ready
-- 💾 Video download functionality
-- 🎯 Example prompts for inspiration 
+- 💾 Image download functionality
+- 🎯 High-quality image generation
+- 🔄 Latest Python 3.12 and FastAPI 0.109.2 
