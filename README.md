@@ -156,4 +156,4 @@ To run the application locally without Docker:
 - ☁️ Railway deployment ready
 - 💾 Image download functionality
 - 🎯 High-quality image generation
-- 🔄 Latest Python 3.12 and FastAPI 0.109.2 
+- 🔄 Latest Python 3.12 and FastAPI 0.109.2 # Updated for renamed repository
