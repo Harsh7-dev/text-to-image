@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="Text-to-Image API (Replicate)", version="1.0.0")
 
 # Mount static files
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 class Prompt(BaseModel):
     text: str
@@ -25,7 +25,7 @@ class Prompt(BaseModel):
 @app.get("/")
 async def read_root():
     """Serve the main frontend page"""
-    return FileResponse("app/static/index.html")
+    return FileResponse("static/index.html")
 
 @app.get("/health")
 @app.head("/health")
